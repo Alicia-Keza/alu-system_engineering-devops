@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
-# Configures an Nginx server so that /redirect_me redirects to another page
-# The redirection is a "301 Moved Permanently"
+# Configures Nginx to redirect /redirect_me to a YouTube video
+apt-get -y update
+apt-get -y install nginx
 
-sudo apt-get update
-sudo apt-get -y install nginx
-sudo ufw allow 'Nginx HTTP'
-echo "Holberton School" | sudo tee /var/www/html/index.html > /dev/null
+# Insert the redirection rule into the default site configuration
+# We use 'permanent' to trigger a 301 status code
+sed -i '/server_name _;/a \ \trewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
 
-# Add redirect rule for /redirect_me using string replacement (more reliable)
-new_string="server_name _;\n\tlocation /redirect_me {\n\t\treturn 301 https://www.wilsonn.vercel.app;\n\t}\n"
-sudo sed -i "s|server_name _;|$new_string|" /etc/nginx/sites-available/default
-
-sudo service nginx restart
+# Restart the service so Nginx reads the new configuration
+service nginx restart
