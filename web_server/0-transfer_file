@@ -15,3 +15,4 @@ KEY=$4
 # Use scp to transfer the file to the home directory on the server
 scp -o StrictHostKeyChecking=no -i "$KEY" "$FILE" "$USER@$IP:~/"
 
+
