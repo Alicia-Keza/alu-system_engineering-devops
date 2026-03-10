@@ -1,13 +1,24 @@
+cat << 'EOF' > 0-custom_http_response_header
 #!/usr/bin/env bash
 # Configures Nginx with a custom HTTP response header
 
-apt-get -y update
-apt-get -y install nginx
+apt-get update -y
+apt-get install -y nginx
 
-# Use a clean, hardcoded sed command that the checker's regex can't miss
-# We use $(hostname | cut -d'-' -f2,3) to turn '7012-web-01' into 'web-01'
-CONF="/etc/nginx/sites-available/default"
-HEADER="add_header X-Served-By \$(hostname | cut -d'-' -f2,3);"
-sed -i "s|server_name _;|\0\n\t$HEADER|" "$CONF"
+# Overwrite the default config completely
+echo "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+    
+    add_header X-Served-By \$hostname;
+    
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}" > /etc/nginx/sites-available/default
 
 service nginx restart
+EOF

@@ -1,29 +1,35 @@
+cat << 'EOF' > 1-install_load_balancer
 #!/usr/bin/env bash
-# Configures HAProxy to load balance between two web servers
+# Installs and configures HAProxy
 
-apt-get -y update
-apt-get -y install haproxy
+apt-get update -y
+apt-get install -y haproxy
 
-# Build a fresh config
-cat <<EOF > /etc/haproxy/haproxy.cfg
-global
+# Overwrite the HAProxy config completely
+echo 'global
+    log /dev/log local0
+    log /dev/log local1 notice
+    user haproxy
+    group haproxy
     daemon
-    maxconn 256
 
 defaults
+    log global
     mode http
-    timeout connect 5000ms
-    timeout client 50000ms
-    timeout server 50000ms
+    option httplog
+    option dontlognull
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
 
-frontend http-in
+frontend alx_front
     bind *:80
-    default_backend webservers
+    default_backend alx_back
 
-backend webservers
+backend alx_back
     balance roundrobin
     server web-01 54.152.40.73:80 check
-    server web-02 3.89.112.68:80 check
-EOF
+    server web-02 3.89.112.68:80 check' > /etc/haproxy/haproxy.cfg
 
-service nginx restart
+service haproxy restart
+EOF
