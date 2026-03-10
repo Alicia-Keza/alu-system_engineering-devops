@@ -1,0 +1,1 @@
+This project focuses on setting up a load balancer with HAProxy and Nginx.
