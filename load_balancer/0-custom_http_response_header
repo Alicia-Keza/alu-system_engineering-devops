@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Configures Nginx with a custom HTTP response header
+
 apt-get -y update
 apt-get -y install nginx
 
-# Use sed to insert the header right after the 'server_name _;' line
-# This is the specific location the automated checker usually tests for
-sudo sed -i "s/server_name _;/server_name _;\n\tadd_header X-Served-By \$HOSTNAME;/" /etc/nginx/sites-available/default
+# This detects if the server name has 'web-01' or 'web-02' and sets the header
+SERVER_ID=$(hostname)
+sed -i "s/server_name _;/server_name _;\n\tadd_header X-Served-By \"$SERVER_ID\";/" /etc/nginx/sites-available/default
 
 service nginx restart
