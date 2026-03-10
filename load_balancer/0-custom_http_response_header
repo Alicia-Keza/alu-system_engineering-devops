@@ -1,13 +1,30 @@
 #!/usr/bin/env bash
 # Configures a brand new Ubuntu machine with Nginx and a custom header
 
-# Update packages and install Nginx
 apt-get -y update
 apt-get -y install nginx
 
-# Add the custom HTTP header to the Nginx configuration
-# We insert the add_header directive right below the listen directive
-sed -i "/listen 80 default_server;/a \ \tadd_header X-Served-By $HOSTNAME;" /etc/nginx/sites-available/default
+# Provide a basic HTML file to ensure a 200 OK response
+echo "Hello World!" > /var/www/html/index.html
 
-# Restart Nginx to apply the changes
+# Overwrite the default config with our custom header
+cat << EOF > /etc/nginx/sites-available/default
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+    add_header X-Served-By \$HOSTNAME;
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+}
+EOF
+
+# Force the symlink to exist so Nginx actually reads the file
+ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+# Restart Nginx to apply changes
 service nginx restart
+FILE
