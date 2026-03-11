@@ -1,18 +1,19 @@
-cat << 'EOF' > 1-install_load_balancer
 #!/usr/bin/env bash
-# Installs and configures HAProxy
+# Install and configure HAProxy
 apt-get -y update
 apt-get -y install haproxy
-cat << INNER_EOF >> /etc/haproxy/haproxy.cfg
 
-frontend alx_frontend
+cat >> /etc/haproxy/haproxy.cfg <<EOF
+
+frontend alx_front
     bind *:80
-    default_backend alx_backend
+    default_backend alx_back
 
-backend alx_backend
+backend alx_back
     balance roundrobin
     server web-01 54.152.40.73:80 check
     server web-02 3.89.112.68:80 check
-INNER_EOF
-service haproxy restart
 EOF
+
+service haproxy restart
+

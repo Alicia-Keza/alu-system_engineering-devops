@@ -1,11 +1,10 @@
-cat << 'EOF' > 0-custom_http_response_header
 #!/usr/bin/env bash
-# Configures Nginx with a custom HTTP response header
+# Configures Nginx with custom HTTP response header
 apt-get -y update
 apt-get -y install nginx
-sed -i 's/server_name _;/server_name _;\n\tadd_header X-Served-By $HOSTNAME;/' /etc/nginx/sites-available/default
+sed -i '/listen 80 default_server;/a \ \tadd_header X-Served-By $HOSTNAME;' /etc/nginx/sites-available/default
 service nginx restart
-EOF
+
 
 
 
