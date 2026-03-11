@@ -1,35 +1,18 @@
 cat << 'EOF' > 1-install_load_balancer
 #!/usr/bin/env bash
 # Installs and configures HAProxy
+apt-get -y update
+apt-get -y install haproxy
+cat << INNER_EOF >> /etc/haproxy/haproxy.cfg
 
-apt-get update -y
-apt-get install -y haproxy
-
-# Overwrite the HAProxy config completely
-echo 'global
-    log /dev/log local0
-    log /dev/log local1 notice
-    user haproxy
-    group haproxy
-    daemon
-
-defaults
-    log global
-    mode http
-    option httplog
-    option dontlognull
-    timeout connect 5000
-    timeout client 50000
-    timeout server 50000
-
-frontend alx_front
+frontend alx_frontend
     bind *:80
-    default_backend alx_back
+    default_backend alx_backend
 
-backend alx_back
+backend alx_backend
     balance roundrobin
     server web-01 54.152.40.73:80 check
-    server web-02 3.89.112.68:80 check' > /etc/haproxy/haproxy.cfg
-
+    server web-02 3.89.112.68:80 check
+INNER_EOF
 service haproxy restart
 EOF
